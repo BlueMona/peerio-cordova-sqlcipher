@@ -59,49 +59,93 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 {
     NSLog(@"Initializing SQLitePlugin");
 
-    {
-        openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
-        appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
+    [self startPlugin];
+}
+
+-(void)startPlugin {
+    [self initDBs];
+    appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
+  
 #if !__has_feature(objc_arc)
-        [openDBs retain];
-        [appDBPaths retain];
+    [appDBPaths retain];
 #endif
 
-        NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-        NSLog(@"Detected docs path: %@", docs);
-        [appDBPaths setObject: docs forKey:@"docs"];
+    NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+    NSLog(@"Detected docs path: %@", docs);
+    [appDBPaths setObject: docs forKey:@"docs"];
 
-        NSString *libs = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-        NSLog(@"Detected Library path: %@", libs);
-        [appDBPaths setObject: libs forKey:@"libs"];
+    NSString *libs = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+    NSLog(@"Detected Library path: %@", libs);
+    [appDBPaths setObject: libs forKey:@"libs"];
 
-        NSString *nosync = [libs stringByAppendingPathComponent:@"LocalDatabase"];
-        NSError *err;
-        if ([[NSFileManager defaultManager] fileExistsAtPath: nosync])
+    NSString *nosync = [libs stringByAppendingPathComponent:@"LocalDatabase"];
+    NSError *err;
+    if ([[NSFileManager defaultManager] fileExistsAtPath: nosync])
+    {
+        NSLog(@"no cloud sync at path: %@", nosync);
+        [appDBPaths setObject: nosync forKey:@"nosync"];
+    }
+    else
+    {
+        if ([[NSFileManager defaultManager] createDirectoryAtPath: nosync withIntermediateDirectories:NO attributes: nil error:&err])
         {
+            NSURL *nosyncURL = [ NSURL fileURLWithPath: nosync];
+            if (![nosyncURL setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &err])
+            {
+                NSLog(@"IGNORED: error setting nobackup flag in LocalDatabase directory: %@", err);
+            }
             NSLog(@"no cloud sync at path: %@", nosync);
             [appDBPaths setObject: nosync forKey:@"nosync"];
         }
         else
         {
-            if ([[NSFileManager defaultManager] createDirectoryAtPath: nosync withIntermediateDirectories:NO attributes: nil error:&err])
-            {
-                NSURL *nosyncURL = [ NSURL fileURLWithPath: nosync];
-                if (![nosyncURL setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &err])
-                {
-                    NSLog(@"IGNORED: error setting nobackup flag in LocalDatabase directory: %@", err);
-                }
-                NSLog(@"no cloud sync at path: %@", nosync);
-                [appDBPaths setObject: nosync forKey:@"nosync"];
-            }
-            else
-            {
-                // fallback:
-                NSLog(@"WARNING: error adding LocalDatabase directory: %@", err);
-                [appDBPaths setObject: libs forKey:@"nosync"];
-            }
+            // fallback:
+            NSLog(@"WARNING: error adding LocalDatabase directory: %@", err);
+            [appDBPaths setObject: libs forKey:@"nosync"];
         }
     }
+}
+
+-(void)closeDBs {
+    if(openDBs == nil){
+        NSLog(@"Databases are already closed");
+    }
+  
+    NSLog(@"Closing open databases");
+    int i;
+    NSArray *keys = [openDBs allKeys];
+    NSValue *pointer;
+    NSString *key;
+    sqlite3 *db;
+
+    /* close db the user forgot */
+    for (i=0; i<[keys count]; i++) {
+        key = [keys objectAtIndex:i];
+        NSLog(@"db: %@", key);
+        pointer = [openDBs objectForKey:key];
+        db = [pointer pointerValue];
+        sqlite3_close (db);
+    }
+
+#if !__has_feature(objc_arc)
+    [openDBs release];
+#endif
+  
+    openDBs = nil;
+  
+}
+
+-(void)initDBs {
+    openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
+  
+#if !__has_feature(objc_arc)
+    [openDBs retain];
+#endif
+}
+
+-(void)closeAll: (CDVInvokedUrlCommand*)command {
+    [self closeDBs];
+    [self initDBs];
 }
 
 -(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey {
@@ -494,22 +538,9 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 
 -(void)dealloc
 {
-    int i;
-    NSArray *keys = [openDBs allKeys];
-    NSValue *pointer;
-    NSString *key;
-    sqlite3 *db;
-
-    /* close db the user forgot */
-    for (i=0; i<[keys count]; i++) {
-        key = [keys objectAtIndex:i];
-        pointer = [openDBs objectForKey:key];
-        db = [pointer pointerValue];
-        sqlite3_close (db);
-    }
+    [self closeDBs];
 
 #if !__has_feature(objc_arc)
-    [openDBs release];
     [appDBPaths release];
     [super dealloc];
 #endif

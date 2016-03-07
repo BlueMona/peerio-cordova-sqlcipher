@@ -562,6 +562,9 @@
       }
       delete SQLitePlugin.prototype.openDBs[args.path];
       return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
+    },
+    closeAll: function(success, error) {
+      return cordova.exec(success, error, "SQLitePlugin", "closeAll", []);
     }
   };
 
@@ -570,7 +573,8 @@
       isSQLitePlugin: true
     },
     openDatabase: SQLiteFactory.opendb,
-    deleteDatabase: SQLiteFactory.deleteDb
+    deleteDatabase: SQLiteFactory.deleteDb,
+    closeAll: SQLiteFactory.closeAll
   };
 
 }).call(this);
