@@ -563,8 +563,14 @@
       delete SQLitePlugin.prototype.openDBs[args.path];
       return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
     },
-    closeAll: function(success, error) {
-      return cordova.exec(success, error, "SQLitePlugin", "closeAll", []);
+    closeAll: function() {
+        try {
+            return new Promise( function(success, error) {
+                cordova.exec(success, error, "SQLitePlugin", "closeAll", []);
+            });
+        } catch(e) {
+            return false;
+        }
     }
   };
 
