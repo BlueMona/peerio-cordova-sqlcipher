@@ -564,13 +564,9 @@
       return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
     },
     closeAll: function() {
-        try {
-            return new Promise( function(success, error) {
-                cordova.exec(success, error, "SQLitePlugin", "closeAll", []);
-            });
-        } catch(e) {
-            return false;
-        }
+        return new Promise( function(success, error) {
+            cordova.exec(success, error, "SQLitePlugin", "closeAll", []);
+        });
     }
   };
 
