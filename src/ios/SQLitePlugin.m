@@ -146,6 +146,8 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 -(void)closeAll: (CDVInvokedUrlCommand*)command {
     [self closeDBs];
     [self initDBs];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Databases closed"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
 
 -(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey {
