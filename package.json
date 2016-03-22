@@ -1,37 +1,40 @@
 {
-  "name": "cordova-sqlcipher-adapter",
-  "version": "0.1.4-rc",
-  "description": "SQLCipher database adapter for PhoneGap/Cordova, based on cordova-sqlite-storage",
-  "cordova": {
-    "id": "cordova-sqlcipher-adapter",
-    "platforms": [
-      "android",
-      "ios",
-      "windows"
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/litehelpers/Cordova-sqlcipher-adapter.git"
-  },
-  "keywords": [
-    "sqlite",
-    "sqlcipher",
-    "ecosystem:cordova",
-    "cordova-android",
-    "cordova-ios",
-    "cordova-windows"
-  ],
-  "engines": [
-    {
-      "name": "cordova",
-      "version": ">=3.3.0"
-    }
-  ],
-  "author": "various",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/litehelpers/Cordova-sqlcipher-adapter/issues"
-  },
-  "homepage": "https://github.com/litehelpers/Cordova-sqlcipher-adapter"
+    "name": "com.peerio.cordova.plugin.sqlcipher",
+    "version": "0.1.4-rc",
+    "description": "SQLCipher database adapter for PhoneGap/Cordova, based on cordova-sqlite-storage",
+    "cordova": {
+        "id": "com.peerio.cordova.plugin.sqlcipher",
+        "platforms": [
+            "android",
+            "ios",
+            "windows"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/PeerioTechnologies/peerio-cordova-sqlcipher"
+    },
+    "keywords": [
+        "sqlite",
+        "sqlcipher",
+        "ecosystem:cordova",
+        "cordova-android",
+        "cordova-ios",
+        "cordova-windows"
+    ],
+    "engines": [
+        {
+            "name": "cordova",
+            "version": ">=3.3.0"
+        }
+    ],
+    "author": "various",
+    "contributors": [
+        {
+            "name": "Samvel Avanesov",
+            "email": "seavan@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/PeerioTechnologies/com.peerio.cordova.plugin.sqlcipher"
 }
