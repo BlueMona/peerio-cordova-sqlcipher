@@ -122,17 +122,15 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
     for (i=0; i<[keys count]; i++) {
         key = [keys objectAtIndex:i];
         NSLog(@"db: %@", key);
+        if([key hasPrefix:@"_"]) {
+            NSLog(@"skipping system");
+            continue;
+        }
         pointer = [openDBs objectForKey:key];
         db = [pointer pointerValue];
         sqlite3_close (db);
+        [openDBs removeObjectForKey:key];
     }
-
-#if !__has_feature(objc_arc)
-    [openDBs release];
-#endif
-  
-    openDBs = nil;
-  
 }
 
 -(void)initDBs {
@@ -145,7 +143,6 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 
 -(void)closeAll: (CDVInvokedUrlCommand*)command {
     [self closeDBs];
-    [self initDBs];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Databases closed"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
@@ -542,6 +539,11 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 {
     [self closeDBs];
 
+#if !__has_feature(objc_arc)
+    [openDBs release];
+#endif
+  
+    openDBs = nil;
 #if !__has_feature(objc_arc)
     [appDBPaths release];
     [super dealloc];
