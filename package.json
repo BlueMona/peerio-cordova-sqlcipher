@@ -1,6 +1,6 @@
 {
     "name": "com.peerio.cordova.plugin.sqlcipher",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "description": "SQLCipher database adapter for PhoneGap/Cordova, based on cordova-sqlite-storage",
     "cordova": {
         "id": "com.peerio.cordova.plugin.sqlcipher",
